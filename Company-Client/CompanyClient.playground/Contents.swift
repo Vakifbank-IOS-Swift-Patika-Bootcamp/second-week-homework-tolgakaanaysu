@@ -1,13 +1,5 @@
 import Foundation
 
-//TODO:
-/*
- -İngizlice kontrolü
- -Int .2f formatlanacak
- -Get set kontorlü
- */
-
-
 //MARK: - EMPLOYEE
 
 //Employee level and salary coefficient
