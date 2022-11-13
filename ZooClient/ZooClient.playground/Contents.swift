@@ -54,7 +54,6 @@ class Cat: Animals {
         self.name = name
         self.waterConsumption = waterConsumption
     }
-    
 }
 
 class Dog: Animals {
@@ -83,9 +82,16 @@ protocol ZooProtocol {
     var expenses: Int { get set }
     var income: Int  { get set }
     
+    // Add animals to zoo
     mutating func addAnimals(animal: Animals, zooKeeper: ZooKeeperProtocol)
+    
+    // Add zoo keeper to zoo
     mutating func addZooKeeper(zooKeeper: ZooKeeperProtocol)
-    mutating func addWaterLimit(at: Int)
+    
+    //Increase water limit to zoo
+    mutating func increaseWaterLimit(at: Int)
+    
+    // Pay zoo keeper's salary
     mutating func paySalary()
     
     // Add money to zoo account
@@ -96,7 +102,6 @@ protocol ZooProtocol {
     
     // Add expense to zoo
     mutating func addToExpenses(at amount : Int)
-    
     
 }
 
@@ -150,6 +155,10 @@ extension Zoo {
             print("\(zooKeeper.name) adlı bakıcı bulunamadı.. \(animal.name) hayvanat bahçesine eklenemedi :(")
             return
         }
+        guard waterLimit > animal.waterConsumption else {
+            print("Su limiti yetersiz")
+            return
+        }
         
         if allAnimals.contains(where: {$0.id == animal.id }) {
             print("\(animal.name) daha önce eklendi")
@@ -178,7 +187,7 @@ extension Zoo {
         
     }
     
-    mutating func addWaterLimit(at limit: Int) {
+    mutating func increaseWaterLimit(at limit: Int) {
         waterLimit += limit
     }
     
@@ -196,7 +205,7 @@ extension Zoo {
         print("Maaşlar ödendi. Kalan bütçe: \(balance)")
     }
     
-    // Add money to company account
+   
     mutating func addToBalance(at amount : Int) {
         guard amount > 1000 else {
             print("Lütfen 1000₺'den büyük bir miktar giriniz")
@@ -230,7 +239,6 @@ extension Zoo {
         
         expenses += amount
         print("Giderler \(amount)₺ arttı.. Toplam gider: \(expenses)₺. Yeni bütçe: \(balance)")
-        
     }
 }
 
@@ -240,7 +248,7 @@ var dog1 = Dog(id: 1, name: "Garip", waterConsumption: 10)
 var dog2 = Dog(id: 2, name: "Duman", waterConsumption: 15)
 dog1.zooKeeper
 var cat1 = Cat(id: 3, name: "Şakir", waterConsumption: 5)
-var cat2 = Cat(id: 4, name: "Pamuk", waterConsumption: 6)
+var cat2 = Cat(id: 4, name: "Pamuk", waterConsumption: 1000)
 
 var tolga = ZooKeeper(id: 1, name: "Tolga", age: 20)
 var kaan = ZooKeeper(id: 2, name: "Kağan", age: 25)
