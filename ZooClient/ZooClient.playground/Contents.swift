@@ -151,15 +151,19 @@ struct Zoo: ZooProtocol {
 extension Zoo {
     
     mutating func addAnimals(animal: Animals, zooKeeper: ZooKeeperProtocol) {
+        // check does zoo keeper work at zoo
         guard  zooKeepers.contains(where: {$0.name == zooKeeper.name}) else {
             print("\(zooKeeper.name) adlı bakıcı bulunamadı.. \(animal.name) hayvanat bahçesine eklenemedi :(")
             return
         }
+        
+        //check is water limit enough
         guard waterLimit > animal.waterConsumption else {
             print("Su limiti yetersiz")
             return
         }
         
+        // check has animal been added before
         if allAnimals.contains(where: {$0.id == animal.id }) {
             print("\(animal.name) daha önce eklendi")
             return
@@ -175,7 +179,9 @@ extension Zoo {
         
     }
     
+    
     mutating func addZooKeeper(zooKeeper: ZooKeeperProtocol) {
+        // check does zoo keeper work at zoo
         if zooKeepers.contains(where: {$0.id == zooKeeper.id}){
             print("\(zooKeeper.name) adlı bakıcı zaten ekli..")
             
@@ -184,12 +190,12 @@ extension Zoo {
             zooKeepers.append(zooKeeper)
             print("\(zooKeeper.name) adlı bakıcı eklendi..")
         }
-        
     }
     
     mutating func increaseWaterLimit(at limit: Int) {
         waterLimit += limit
     }
+    
     
     mutating func paySalary() {
         var total = 0
