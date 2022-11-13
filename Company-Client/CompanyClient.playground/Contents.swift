@@ -24,8 +24,6 @@ protocol EmployeeProtocol {
     var salary: Int? { get }
     var company: String? { get set }
     
-    
-    
 }
 
 class Employee: EmployeeProtocol {
@@ -39,17 +37,12 @@ class Employee: EmployeeProtocol {
         return Int(age) * developerType.rawValue * 50
     }
    
-    
     init(name: String, age: Int, maritalStatus: MaritalStatus) {
         self.name = name
         self.age = age
         self.maritalStatus = maritalStatus
-        
     }
-    
-    
 }
-import Foundation
 
 //MARK: - Company
 protocol CompanyProtocol {
@@ -99,9 +92,6 @@ struct Company: CompanyProtocol  {
         print("\(self.name) adlı şirket kuruldu.. Şirket bütçesi: \(self.balance)")
        
     }
-    
-    
-    
 }
 
 extension Company: CompanyAccountingManager {
@@ -155,7 +145,6 @@ extension Company: CompanyAccountingManager {
         print("Bütçe \(amount)₺ azaldı")
     }
 }
-
 
 //Create Company
 var myCompany = Company(name: "Invented Studios", foundationYear: 2022, addres: nil, balance: 12000)
