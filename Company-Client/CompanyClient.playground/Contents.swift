@@ -3,7 +3,7 @@ import Foundation
 //TODO:
 /*
  -İngizlice kontrolü
- -Double .2f formatlanacak
+ -Int .2f formatlanacak
  -Get set kontorlü
  */
 
@@ -11,11 +11,11 @@ import Foundation
 //MARK: - EMPLOYEE
 
 //Employee level and salary coefficient
-enum DeveloperType: Double {
-    case intern = 0.5
-    case junior = 1
-    case mid = 1.5
-    case senior = 2.2
+enum DeveloperType: Int {
+    case intern = 1
+    case junior = 2
+    case mid = 3
+    case senior = 5
 }
 
 //Marital status of employee
@@ -28,10 +28,11 @@ protocol EmployeeProtocol {
     var name: String { get }
     var age: Int { get }
     var maritalStatus: MaritalStatus { get }
-    var developerType: DeveloperType { get }
-    var salary: Double { get }
+    var developerType: DeveloperType? { get set }
+    var salary: Int? { get }
+    var company: String? { get set }
     
-    init(name: String, age: Int, maritalStatus: MaritalStatus, developerType: DeveloperType)
+    
     
 }
 
@@ -39,17 +40,22 @@ class Employee: EmployeeProtocol {
     var name: String
     var age: Int
     var maritalStatus: MaritalStatus
-    var developerType: DeveloperType
-    var salary: Double {
-        return Double(age) * developerType.rawValue * 623
+    var developerType: DeveloperType?
+    var company: String? = nil
+    var salary: Int? {
+        guard let developerType else { return nil }
+        return Int(age) * developerType.rawValue * 50
     }
+   
     
-    required init(name: String, age: Int, maritalStatus: MaritalStatus, developerType: DeveloperType) {
+    init(name: String, age: Int, maritalStatus: MaritalStatus) {
         self.name = name
         self.age = age
         self.maritalStatus = maritalStatus
-        self.developerType = developerType
+        
     }
+    
+    
 }
 import Foundation
 
@@ -63,72 +69,68 @@ protocol CompanyProtocol {
 
 protocol CompanyAccountingManager {
     var employees: [EmployeeProtocol] { get set }
-    var balance: Double { get set }
-    var totalSalary: Double { get }
+    var balance: Int { get set }
+    var totalSalary: Int { get }
     
-    // Add employee to
-    func addEmployeeToCompany(_ employee: EmployeeProtocol)
+    // Add employee to company
+    mutating func addEmployeeToCompany(_ employee: Employee, developerType: DeveloperType)
     
     // Add money to company account
-    func addToBalance(at amount : Double)
+    mutating func addToBalance(at amount : Int)
     
     // Withdraw money from company account
-    func withdrawFromBalance(at amount: Double)
+    mutating func withdrawFromBalance(at amount: Int)
     
     // Pay employees's salary
-    func paySalaries()
+    mutating func paySalaries()
     
     // Total salary pay to employees
-    func getTotalSalary() -> Double
+    func getTotalSalary() -> Int
 }
 
-class Company: CompanyProtocol  {
+struct Company: CompanyProtocol  {
     var name: String
-    var foundationYear: Int
+    let foundationYear: Int
     var addres: String?
-    var balance: Double
+    var balance: Int
     var employees: [EmployeeProtocol]
-    var totalSalary: Double {
+    var totalSalary: Int {
         return getTotalSalary()
     }
     
-    init(name: String, foundationYear: Int, addres: String?, balance: Double, employees: [EmployeeProtocol]) {
+    init(name: String, foundationYear: Int, addres: String?, balance: Int) {
         self.name = name
         self.foundationYear = foundationYear
         self.addres = addres
         self.balance = balance
-        self.employees = employees
+        self.employees = []
+        print("\(self.name) adlı şirket kuruldu.. Şirket bütçesi: \(self.balance)")
+       
     }
     
-    convenience init(name: String, foundationYear: Int){
-        self.init(name: name, foundationYear: foundationYear, addres: nil, balance: 0.0, employees: [])
-    }
     
-    convenience init(name: String, foundationYear: Int, balance: Double){
-        self.init(name: name, foundationYear: foundationYear,addres: nil, balance: balance, employees: [])
-    }
     
-    convenience init(name: String,foundationYear: Int, employess: [EmployeeProtocol]) {
-        self.init(name: name, foundationYear: foundationYear,addres: nil, balance: 0.0, employees: employess)
-    }
 }
 
 extension Company: CompanyAccountingManager {
     
-    func addEmployeeToCompany(_ employee: EmployeeProtocol) {
+    mutating func addEmployeeToCompany(_ employee: Employee, developerType: DeveloperType) {
         employees.append(employee)
-        print("\(employee.name) şirkette çalışmaya başladı..")
+        var addedEmployee = employee
+        addedEmployee.developerType = developerType
+        addedEmployee.company = self.name
+        print("\(employee.name) şirkette \(developerType) olarak  çalışmaya başladı.. Maaşı: \(employee.salary!)₺")
     }
     
-    func  getTotalSalary() -> Double {
-        var total = 0.0
+    func  getTotalSalary() -> Int {
+        var total = 0
         for employee in employees {
-            total += employee.salary
+            total += employee.salary!
         }
         return total
     }
     
-    func paySalaries(){
+    mutating func paySalaries(){
         if totalSalary < balance {
             balance -= totalSalary
             print("Maaşlar ödendi... Kalan para: \(balance)₺")
@@ -137,7 +139,7 @@ extension Company: CompanyAccountingManager {
         }
     }
     
-    func addToBalance(at amount : Double) {
+    mutating func addToBalance(at amount : Int) {
         guard amount > 1000 else {
             print("Lütfen 1000₺'den büyük bir miktar giriniz")
             return
@@ -147,12 +149,12 @@ extension Company: CompanyAccountingManager {
         print("Bütçeye \(amount)₺ eklendi. Yeni bütçe: \(balance)₺ ")
     }
     
-    func withdrawFromBalance(at amount: Double){
+    mutating func withdrawFromBalance(at amount: Int){
         guard amount > 50 else {
             print("Lütfen 50₺'den büyük bir miktar giriniz")
             return
         }
-        guard amount > balance else {
+        guard amount < balance else {
             print("Yetersiz bakiye..")
             return
         }
@@ -163,22 +165,53 @@ extension Company: CompanyAccountingManager {
 }
 
 
+//Create Company
+var myCompany = Company(name: "Invented Studios", foundationYear: 2022, addres: nil, balance: 12000)
 
-let d1 = Employee(name: "Tolga", age: 33, maritalStatus: .single, developerType: .junior)
-let d2 = Employee(name: "Kağan" , age: 20 , maritalStatus: .married, developerType: .mid)
+//Create Employee
+var tolga = Employee(name: "Tolga", age: 25, maritalStatus: .single)
+var kaan = Employee(name: "Kağan", age: 33, maritalStatus: .single)
 
-var myCompany = Company(name: "Jesus Yazılım", foundationYear: 2022)
+//Check employee's company, developer type and salary before added to company
+tolga.salary
+tolga.company
+tolga.developerType
 
-myCompany.addToBalance(at: 2)
-myCompany.addEmployeeToCompany(d1)
-print(d1.salary)
-d1.age = 21
-print(d1.salary)
-d1.developerType = .senior
-print(d1.salary)
+//Check company total salary before added employee
+myCompany.totalSalary
 
+//Add employee to company
+myCompany.addEmployeeToCompany(tolga, developerType: .junior)
 
+//Check employee's company, developer type and salary after added to company
+tolga.developerType
+tolga.company
+tolga.salary
 
+//Check company total salary after added employee
+myCompany.totalSalary
+
+myCompany.addEmployeeToCompany(kaan, developerType: .senior)
+kaan.salary
+//Check company total salary after added employee
+myCompany.totalSalary
+
+//Check company balance
+myCompany.balance
+
+// Add money to company account
+myCompany.addToBalance(at: 25000)
+
+//Check company balance
+myCompany.balance
+
+// Pay employees's salary
 myCompany.paySalaries()
 
+//Check company balance
+myCompany.balance
 
+// Withdraw money from company account
+myCompany.withdrawFromBalance(at: 10000)
+
+myCompany.balance
